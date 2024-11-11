@@ -1,0 +1,86 @@
+---
+import '../styles/global.css';
+import Layout from '../layouts/Layout.astro';
+import { refreshTokenCookie } from '../utils/authClient';
+import oauthClient from '../utils/authClient';
+import { ProfileForm } from '@/components/quickbooksForm';
+
+
+// const accessToken = Astro.cookies.get('accessToken')
+const refreshToken = Astro.cookies.get('refreshToken');
+console.log(refreshToken)
+const accessToken = oauthClient.token.getToken();
+// console.log("Expiration Time", (Math.floor(accessToken.createdAt / 1000)) + accessToken.expires_in);
+
+const currentTime = Math.floor(Date.now() / 1000);
+// console.log("Current Time", currentTime)
+// console.log(accessToken)
+
+const expirationTimestamp = (Math.floor(accessToken.createdAt / 1000)) + accessToken.expiresIn
+
+// const expirationDate = new Date(expirationTimestamp * 1000).toLocaleString();
+
+if (!refreshToken) {
+    return Astro.redirect('/')
+}
+
+
+if (currentTime >= expirationTimestamp) {
+    const refreshAccessToken =  refreshTokenCookie().then(() => {
+    console.log("Refresh Access Token", refreshAccessToken);
+
+    Astro.cookies.delete('accessToken');
+
+    Astro.cookies.set("accessToken", refreshAccessToken);
+}).catch((error) => {
+    console.log(error);
+});
+}
+
+// if (!accessToken){
+//     const refreshAccessToken = refreshTokenCookie();
+
+//     Astro.cookies.set("accessToken", refreshAccessToken);
+// }
+
+export const prerender = false;
+
+// const token = oauthClient.token.getToken()
+
+// const qbo = new QuickBooks(
+//                         import.meta.env.QUICKBOOKS_CLIENT_ID,
+//                         import.meta.env.QUICKBOOKS_CLIENT_SECRET,
+//                          accessToken.access_token,
+//                          false, // no token secret for oAuth 2.0
+//                          token.realmId,
+//                          true, // use the sandbox?
+//                          true, // enable debugging?
+//                          null, // set minorversion, or null for the latest version
+//                          '2.0', //oAuth version
+//                          refreshToken);
+
+// function getAccountInfo(qbo) {
+//     qbo.findAccounts({
+//       AccountType: 'Accounts Receivable',
+//       desc: 'MetaData.LastUpdatedTime',
+//       limit: 5,
+//     //   offset: 5
+//       }, function(err, accounts) {
+//       accounts.QueryResponse.Account?.forEach(function(account) {
+//         console.log(account.Name)
+//       })
+//       if (err){
+//         console.error('Error:', err);
+//       }
+//     })
+// }
+
+---
+
+<Layout title="Quickbooks">
+    
+    <div class="min-h-[calc(100dvh-4rem)] md:min-h[calc(100dvh-5rem)]">
+        <ProfileForm client:load />
+
+    </div>
+</Layout>
