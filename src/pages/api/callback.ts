@@ -41,7 +41,7 @@ export const GET: APIRoute = async ({ url, redirect }) => {
     headers.append('Set-Cookie', accessTokenCookie);
     headers.append('Set-Cookie', refreshTokenCookie);
 
-    headers.append('Location', '/');
+    headers.append('Location', '/dashboard');
 
     let authToken = oauthClient.token.getToken();
 
