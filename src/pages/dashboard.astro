@@ -8,7 +8,7 @@ import { ProfileForm } from '@/components/quickbooksForm';
 
 // const accessToken = Astro.cookies.get('accessToken')
 const refreshToken = Astro.cookies.get('refreshToken');
-console.log(refreshToken)
+// console.log(refreshToken)
 const accessToken = oauthClient.token.getToken();
 // console.log("Expiration Time", (Math.floor(accessToken.createdAt / 1000)) + accessToken.expires_in);
 
@@ -25,30 +25,37 @@ if (!refreshToken) {
 }
 
 if (currentTime >= expirationTimestamp) {
-    const refreshAccessToken =  refreshTokenCookie().then(() => {
-    console.log("Refresh Access Token", refreshAccessToken);
+    try {
+        const refreshAccessToken = refreshTokenCookie()
+        console.log("Refresh Access Token", refreshAccessToken);
 
-    Astro.cookies.delete('accessToken');
+        Astro.cookies.delete('accessToken');
 
-    Astro.cookies.set("accessToken", refreshAccessToken);
-}).catch((error) => {
-    console.log(error);
-});
+        Astro.cookies.set("accessToken", refreshAccessToken);
+    } catch (error) {
+        console.log(error);
+    }
 }
-
-// if (!accessToken){
-//     const refreshAccessToken = refreshTokenCookie();
-
-//     Astro.cookies.set("accessToken", refreshAccessToken);
-// }
 
 export const prerender = false;
 ---
-
+<script>
+    import { actions } from 'astro:actions';
+    
+    document.getElementById('refresh')?.addEventListener('click', () => {
+        actions.refreshToken();
+    });
+</script>
 <Layout title="Quickbooks">
     
     <div class="">
         <ProfileForm client:load />
 
+        <button id="refresh">
+            Refresh Token
+        </button>
+
     </div>
+
+
 </Layout>

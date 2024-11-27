@@ -3,6 +3,7 @@ import { z } from "astro:schema";
 import oauthClient from "../utils/authClient";
 /* @ts-ignore */
 import QuickBooks from 'node-quickbooks';
+import { refreshTokenCookie } from "../utils/authClient";
 
 // const accessToken = oauthClient.token.getToken();
 
@@ -154,8 +155,15 @@ export const server = {
               resolve(payments)
               })
             });
-
-            
         }
+    }),
+
+    refreshToken: defineAction({ 
+      handler: async () => {
+
+        return  {
+          token: refreshTokenCookie()
+      }
+    }
     })
 }

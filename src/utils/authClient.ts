@@ -10,21 +10,34 @@ const oauthClient = new OAuthClient({
 
 export default oauthClient;
 
-export async function refreshTokenCookie() {
+export function refreshTokenCookie() {
     try {
-    console.log(oauthClient.token.getToken())
+    // console.log(oauthClient.token.getToken())
 
     // oauthClient.setToken();
 
-    const accessTokenObj = await oauthClient.refresh();
+    const accessTokenPromise = new Promise((resolve, reject) => { 
+        oauthClient.refresh()
+        .then(function(authResponse: any){
+            console.log('The Refresh Token is  '+ JSON.stringify(authResponse.json));
+            resolve(authResponse.json);
+         })
+        
+        .catch(function(e: any) {
+            console.error(e);
+            reject(e)
+        })
+    });
 
-    const accessToken = accessTokenObj.json.access_token;
-    // console.log(accessTokenObj.json.access_token);
+    const accessTokenObj = accessTokenPromise 
+    .then(res => res);
+    const accessToken = accessTokenObj.access_token;
+    // console.log(accessToken);
 
     return accessToken;
     }
     catch (error) {
         console.error('Error refreshing access token:', error);
-        throw error;
+        // throw error;
     }
 }
